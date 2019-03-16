@@ -1,8 +1,11 @@
 package memphis.myapplication;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
@@ -16,6 +19,8 @@ import com.google.zxing.integration.android.IntentResult;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.google.zxing.integration.android.IntentIntegrator.QR_CODE_TYPES;
 
@@ -91,16 +96,31 @@ public class AddFriendActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+
+
         if (requestCode == FRIEND_QR_REQUEST_CODE) {
             IntentResult result = IntentIntegrator.parseActivityResult(IntentIntegrator.REQUEST_CODE, resultCode, data);
             if (result == null) {
                 Toast.makeText(this, "Null", Toast.LENGTH_LONG).show();
+                finish();
             }
+            String content = result.getContents();
+            int index = content.indexOf(" ");
+            String username = content.substring(0, index);
+            Pattern testpattern =  Pattern.compile("(\\w)");
             if (result != null) {
                 // check resultCode to determine what type of code we're scanning, file or friend
 
+               // Matcher testtext = testpattern.matcher(username);
+                /*if(!testtext.matches())
+                {
+                    showAlertDailog(AddFriendActivity.this, "QR CODE CHECK" , "Invalid QR TYPE : "+result.getContents().toString());
+            }*/
+
                 if (result.getContents() != null) {
-                    String content = result.getContents();
+
+                    //String content = result.getContents();
                     Log.d("ScannedFriend", content);
                     // need to check this content to determine if we are scanning file or friend code
                     // Toast.makeText(this, content, Toast.LENGTH_LONG).show();
@@ -110,8 +130,8 @@ public class AddFriendActivity extends AppCompatActivity {
                         Toast.makeText(this, "Friend was saved successfully.", Toast.LENGTH_LONG).show();
                         Intent intent = new Intent();
                         if (content.length() > 0) {
-                            int index = content.indexOf(" ");
-                            String username = content.substring(0, index);
+                           // int index = content.indexOf(" ");
+                            //String username = content.substring(0, index);
                             intent.putExtra("username", username);
                             setResult(RESULT_OK, intent);
                         }
@@ -133,4 +153,25 @@ public class AddFriendActivity extends AppCompatActivity {
             }
         }
     }
+
+    public void showAlertDailog(Context context, String title, final String message)
+    {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setTitle(title);
+        // Typeface typeface = Typeface.createFromAsset(getAssets(),"font/gothambold.ttf");
+        alertDialog.setMessage(message);
+        alertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialogInterface, int which) {
+                //Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE_SECURE);
+                //intent.putExtra("android.intent.extra.quickCapture",true);
+                //startActivity(intent);
+                finish();
+            }
+        });
+        alertDialog.show();
+
+    }
+
 }
